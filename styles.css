@@ -1,0 +1,152 @@
+* {
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #013920, #01823E);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  padding: 20px;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 30px;
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  max-width: 1200px;
+  width: 100%;
+  gap: 30px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px;
+  width: 250px;
+  flex-shrink: 0;
+}
+
+h2 {
+  font-size: 1.5em;
+  font-weight: 800;
+  margin: 0;
+  text-align: left;
+}
+
+p {
+  font-size: 0.9em;
+  color: #aaa;
+  margin: 0;
+  text-align: left;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+button,
+label {
+  padding: 10px;
+  font-size: 0.9em;
+  color: #fff;
+  background-color: #01823E;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%;
+  text-align: center;
+}
+
+button:hover,
+label:hover {
+  background-color: #015F2B;
+}
+
+#upload {
+  display: none;
+}
+
+.image-preview {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 450px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+#canvas {
+  display: none;
+  max-width: 100%;
+  max-height: 70vh;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.slider {
+  width: 100%;
+}
+
+.slider-label {
+  color: #aaa;
+  font-size: 0.9em;
+}
+
+.slider-value {
+  color: #fff;
+  font-size: 0.9em;
+  margin-top: -10px;
+  margin-bottom: 15px;
+}
+
+#configMenu {
+  display: none;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 6px;
+  padding: 10px;
+  z-index: 1000;
+}
+
+.preset-button {
+  background-color: #015F2B;
+  margin-bottom: 5px;
+}
+
+.preset-button:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .content {
+    width: 100%;
+  }
+
+  .image-preview {
+    width: 100%;
+  }
+}
