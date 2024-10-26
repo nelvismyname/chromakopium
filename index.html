@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chromakopium</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;800&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="container" id="container">
+    <div class="content">
+      <h2>chromakopium</h2>
+      <p>have that green texture</p>
+      <input type="file" id="upload" accept="image/*">
+      <label for="upload">Upload</label>
+      <div class="controls">
+        <div>
+          <span class="slider-label">Overlay</span>
+          <input type="range" id="overlaySlider" class="slider" min="0" max="100" value="50" step="1" oninput="updateOverlay()">
+          <span id="overlayValue" class="slider-value">50</span>
+        </div>
+        <div>
+          <span class="slider-label">Contrast</span>
+          <input type="range" id="contrastSlider" class="slider" min="0" max="100" value="50" step="1" oninput="updateContrast()">
+          <span id="contrastValue" class="slider-value">50</span>
+        </div>
+        <div>
+          <span class="slider-label">Brightness</span>
+          <input type="range" id="brightnessSlider" class="slider" min="0" max="100" value="50" step="1" oninput="updateBrightness()">
+          <span id="brightnessValue" class="slider-value">50</span>
+        </div>
+        <button onclick="toggleConfigMenu()" id="configButton">Configs</button>
+        <div id="configMenu">
+          <button class="preset-button" onclick="applyPreset('dark')">for Dark</button>
+          <button class="preset-button" onclick="applyPreset('light')">for Light</button>
+        </div>
+        <button onclick="downloadImage()">Download</button>
+      </div>
+    </div>
+    <div class="image-preview">
+      <canvas id="canvas"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const upload = document.getElementById('upload');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const overlaySlider = document.getElementById('overlaySlider');
+    const overlayValue = document.getElementById('overlayValue');
+    const contrastSlider = document.getElementById('contrastSlider');
+    const contrastValue = document.getElementById('contrastValue');
+    const brightnessSlider = document.getElementById('brightnessSlider');
+    const brightnessValue = document.getElementById('brightnessValue');
+    const configMenu = document.getElementById('configMenu');
+    let image = new Image();
+    let overlayOpacity = 0.5;
+
+    const presets = { // so u have something to work on
+      dark: {
+        contrast: 70,
+        brightness: 100,
+        overlay: 100
+      },
+      light: {
+        contrast: 70,
+        brightness: 30,
+        overlay: 100
+      }
+    };
+
+    function toggleConfigMenu() {
+      const button = document.getElementById('configButton');
+      const rect = button.getBoundingClientRect();
+      configMenu.style.display = configMenu.style.display === 'none' ? 'block' : 'none';
+      configMenu.style.top = `${rect.bottom + 5}px`;
+      configMenu.style.left = `${rect.left}px`;
+    }
+
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('#configButton') && !event.target.closest('#configMenu')) {
+        configMenu.style.display = 'none';
+      }
+    });
+
+    function applyPreset(type) {
+      const preset = presets[type];
+      
+      overlaySlider.value = preset.overlay;
+      contrastSlider.value = preset.contrast;
+      brightnessSlider.value = preset.brightness;
+      
+      overlayValue.textContent = preset.overlay;
+      contrastValue.textContent = preset.contrast;
+      brightnessValue.textContent = preset.brightness;
+      
+      applyOverlay();
+      configMenu.style.display = 'none';
+    }
+
+    upload.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          image.onload = () => {
+            const container = document.querySelector('.image-preview');
+            const maxWidth = container.clientWidth;
+            const maxHeight = container.clientHeight;
+            
+            const imageAspect = image.width / image.height;
+            const containerAspect = maxWidth / maxHeight;
+            
+            let newWidth, newHeight;
+            
+            if (imageAspect > containerAspect) {
+              newWidth = maxWidth;
+              newHeight = maxWidth / imageAspect;
+            } else {
+              newHeight = maxHeight;
+              newWidth = maxHeight * imageAspect;
+            }
+            
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+            applyOverlay();
+            canvas.style.display = 'block';
+          };
+          image.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function applyOverlay() {
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      const tempCtx = tempCanvas.getContext('2d');
+
+      const contrast = (contrastSlider.value - 50) / 100;
+      const brightness = (brightnessSlider.value - 50) / 50;
+      
+      tempCtx.filter = `contrast(${1 + contrast}) brightness(${1 + brightness})`;
+      tempCtx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      tempCtx.filter = 'none';
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(tempCanvas, 0, 0);
+
+      overlayOpacity = overlaySlider.value / 100;
+
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.fillStyle = `rgba(1, 130, 62, ${overlayOpacity})`;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = `rgba(1, 130, 62, ${overlayOpacity * 0.2})`;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function updateOverlay() {
+      overlayValue.textContent = overlaySlider.value;
+      applyOverlay();
+    }
+
+    function updateContrast() {
+      contrastValue.textContent = contrastSlider.value;
+      applyOverlay();
+    }
+
+    function updateBrightness() {
+      brightnessValue.textContent = brightnessSlider.value;
+      applyOverlay();
+    }
+
+    function downloadImage() {
+      const rng = Math.floor(Math.random() * 1000000); // Generate a random number
+      const link = document.createElement('a');
+      link.download = `chromakopium-${rng}.png`; // Use the random number in the filename
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+  </script>
+
+</body>
+</html>
